@@ -1,9 +1,16 @@
-FROM gradle:8.7-jdk21 AS build
+FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
-COPY build.gradle.kts settings.gradle.kts ./
+
+COPY gradlew .
 COPY gradle ./gradle
+
+RUN chmod +x gradlew
+
+COPY build.gradle.kts settings.gradle.kts ./
+
 COPY src ./src
-RUN gradle clean build -x test --no-daemon
+
+RUN ./gradlew clean build -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
