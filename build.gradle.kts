@@ -42,3 +42,9 @@ sonar {
 		property("sonar.organization", "textile86")
 	}
 }
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required.set(true)
+	}
+}
