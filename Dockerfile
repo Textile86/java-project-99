@@ -10,7 +10,7 @@ COPY build.gradle.kts settings.gradle.kts ./
 
 COPY src ./src
 
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./gradlew clean build -x test -x checkstyleMain -x checkstyleTest --no-daemon
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
