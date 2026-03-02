@@ -6,13 +6,20 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -22,7 +29,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Setter
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class User implements BaseEntity {
+public class User implements BaseEntity, UserDetails {
 
     @Id
     @EqualsAndHashCode.Include
@@ -34,7 +41,9 @@ public class User implements BaseEntity {
 
     @Column(unique = true, nullable = false)
     private String email;
-    private String password;
+
+    @NotBlank
+    private String passwordDigest;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -44,4 +53,18 @@ public class User implements BaseEntity {
     private LocalDateTime updatedAt;
 
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordDigest;
+    }
+
+    @Override
+    public String getUsername() {
+        return email    ;
+    }
 }

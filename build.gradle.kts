@@ -1,9 +1,8 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.0.3"
-	id("io.spring.dependency-management") version "1.1.3"
+	id("org.springframework.boot") version "3.3.0"
 	jacoco
-	id("org.sonarqube") version "7.1.0.6387"
+	// id("org.sonarqube") version "7.1.0.6387" <-- ПОКА ОСТАВИМ ВЫКЛЮЧЕННЫМ
 	checkstyle
 }
 
@@ -21,9 +20,12 @@ repositories {
 }
 
 dependencies {
+	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.0"))
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-devtools")
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly("org.projectlombok:lombok:1.18.30")
 	annotationProcessor("org.projectlombok:lombok:1.18.30")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -31,9 +33,6 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	implementation("net.datafaker:datafaker:2.0.2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("com.h2database:h2")
-	testImplementation(platform("org.junit:junit-bom:5.10.0"))
-	testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 	testImplementation("org.instancio:instancio-junit:3.3.0")
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
@@ -41,8 +40,6 @@ dependencies {
 	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-	testImplementation("org.springframework.security:spring-security-test")
-	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 }
 
@@ -54,12 +51,12 @@ checkstyle {
 	toolVersion = "10.12.4"
 }
 
-sonar {
-	properties {
-		property("sonar.projectKey", "Textile86_java-project-99")
-		property("sonar.organization", "textile86")
-	}
-}
+//sonar {
+//	properties {
+//		property("sonar.projectKey", "Textile86_java-project-99")
+//		property("sonar.organization", "textile86")
+//	}
+//}
 
 tasks.jacocoTestReport {
 	reports {
