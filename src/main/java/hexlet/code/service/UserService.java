@@ -6,10 +6,10 @@ import hexlet.code.dto.UserPatchDTO;
 import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
-import hexlet.code.model.User;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.UserUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,81 +17,66 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserUtils userUtils;
+    private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final UserMapper userMapper;
+    private final UserUtils userUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserDTO> index() {
-        List<User> users = userRepository.findAll();
-        return  users.stream()
-                .map(u -> userMapper.toDTO(u))
+        return userRepository.findAll().stream()
+                .map(userMapper::toDTO)
                 .toList();
     }
 
     public UserDTO show(Long id) {
-        User findedUser = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        return userMapper.toDTO(findedUser);
+        return userMapper.toDTO(user);
     }
 
     public UserDTO create(UserCreateDTO dto) {
-        User user = userMapper.toEntity(dto);
-
-        String hashedPassword = passwordEncoder.encode(dto.getPassword());
-        user.setPasswordDigest(hashedPassword);
-
-        User savedUser = userRepository.save(user);
-        return userMapper.toDTO(savedUser);
+        var user = userMapper.toEntity(dto);
+        user.setPasswordDigest(passwordEncoder.encode(dto.getPassword()));
+        userRepository.save(user);
+        return userMapper.toDTO(user);
     }
 
     public UserDTO update(Long id, UserUpdateDTO dto) {
-        User currentUser = userUtils.getCurrentUser();
-        if (currentUser == null || !currentUser.getId().equals(id)) {
-            throw new AccessDeniedException("Нет прав на редактирование этого пользователя");
+        var currentUser = userUtils.getCurrentUser();
+        if (!currentUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only edit your own profile");
         }
-        User findedUser = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        userMapper.updateEntity(dto, findedUser);
-        if (dto.getPassword() != null) {
-            findedUser.setPasswordDigest(passwordEncoder.encode(dto.getPassword()));
-        }
-        User savedUser = userRepository.save(findedUser);
-        return userMapper.toDTO(savedUser);
+        userMapper.updateEntity(dto, user);
+        userRepository.save(user);
+        return userMapper.toDTO(user);
     }
 
     public UserDTO patch(Long id, UserPatchDTO dto) {
-        User currentUser = userUtils.getCurrentUser();
-        if (currentUser == null || !currentUser.getId().equals(id)) {
-            throw new AccessDeniedException("Нет прав на редактирование этого пользователя");
+        var currentUser = userUtils.getCurrentUser();
+        if (!currentUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only edit your own profile");
         }
-        User user = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
         userMapper.updateEntityFromPatch(dto, user);
-        if (dto.getPassword() != null && dto.getPassword().isPresent()) {
-            user.setPasswordDigest(passwordEncoder.encode(dto.getPassword().get()));
-        }
-        User savedUser = userRepository.save(user);
-        return userMapper.toDTO(savedUser);
+        userRepository.save(user);
+        return userMapper.toDTO(user);
     }
 
     public void destroy(Long id) {
-        User currentUser = userUtils.getCurrentUser();
-        if (currentUser == null || !currentUser.getId().equals(id)) {
-            throw new AccessDeniedException("Нет прав на редактирование этого пользователя");
+        var currentUser = userUtils.getCurrentUser();
+        if (!currentUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only delete your own profile");
         }
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        userRepository.delete(user);
+        if (taskRepository.existsByAssigneeId(id)) {
+            throw new IllegalStateException("Cannot delete user: they are assigned to one or more tasks");
+        }
+        userRepository.deleteById(id);
     }
-
 }

@@ -1,8 +1,8 @@
 plugins {
 	java
-	id("org.springframework.boot") version "3.3.0"
+	id("org.springframework.boot") version "3.3.5"
 	jacoco
-	// id("org.sonarqube") version "7.1.0.6387" <-- ПОКА ОСТАВИМ ВЫКЛЮЧЕННЫМ
+	// id("org.sonarqube") version "7.1.0.6387"
 	checkstyle
 }
 
@@ -20,12 +20,12 @@ repositories {
 }
 
 dependencies {
-	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.0"))
+	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.5"))
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
+	developmentOnly("org.springframework.boot:spring-boot-devtools:3.3.5")
 	compileOnly("org.projectlombok:lombok:1.18.30")
 	annotationProcessor("org.projectlombok:lombok:1.18.30")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -41,6 +41,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	runtimeOnly("org.postgresql:postgresql")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+	implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.14.0")
 }
 
 tasks.withType<Test> {

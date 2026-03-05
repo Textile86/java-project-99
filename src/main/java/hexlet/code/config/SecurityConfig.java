@@ -22,6 +22,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -30,7 +31,6 @@ public class SecurityConfig {
 
     @Autowired
     private JwtDecoder jwtDecoder;
-
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -52,16 +52,18 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers("/", "/index.html", "/login.html", "/register.html",
                                 "/post.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                        .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/h2-console", "/h2-console/**").permitAll()
-                        .requestMatchers("/api/login", "/api/login/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers("/", "/index.html", "/assets/**").permitAll()
+                        .requestMatchers("/api/login", "/api/login/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/task_statuses", "/api/task_statuses/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/labels", "/api/labels/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.decoder(jwtDecoder)))

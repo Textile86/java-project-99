@@ -16,6 +16,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
 rsa:
   private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem

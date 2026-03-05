@@ -1,3 +1,13 @@
 spring:
   application:
     name: app
+
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
+  exception-resolver-order: -2147483647
+  traces-sample-rate: 1.0
