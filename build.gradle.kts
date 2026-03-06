@@ -43,6 +43,7 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 	implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.14.0")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
 tasks.withType<Test> {

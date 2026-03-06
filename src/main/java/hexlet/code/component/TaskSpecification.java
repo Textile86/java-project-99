@@ -35,7 +35,9 @@ public class TaskSpecification {
 
     private Specification<Task> withLabelId(Long labelId) {
         return (root, query, cb) -> {
-            if (labelId == null) return cb.conjunction();
+            if (labelId == null) {
+                return cb.conjunction();
+            }
             var labels = root.join("labels");
             return cb.equal(labels.get("id"), labelId);
         };

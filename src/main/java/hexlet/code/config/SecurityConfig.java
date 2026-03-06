@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/login.html", "/register.html",
                                 "/post.html").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico", "/favicon/**").permitAll()
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/h2-console", "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").permitAll()

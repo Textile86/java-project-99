@@ -11,6 +11,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
   h2:
     console:
       enabled: false
