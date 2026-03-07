@@ -76,7 +76,11 @@ sonar {
 					"src/main/java/hexlet/code/config/**," +
 					"src/main/java/hexlet/code/component/DataSeeder.java," +
 					"src/main/java/hexlet/code/controller/WelcomeController.java," +
-					"src/main/java/hexlet/code/AppApplication.java"
+					"src/main/java/hexlet/code/AppApplication.java" +
+					"src/main/java/hexlet/code/mapper/TaskMapper.java," +
+					"src/main/java/hexlet/code/util/JWTUtils.java," +
+					"src/main/java/hexlet/code/service/CustomUserDetailsService.java," +
+					"src/main/java/hexlet/code/controller/AuthenticationController.java"
 		)
 	}
 }
