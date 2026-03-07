@@ -1,9 +1,11 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
@@ -16,7 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -49,6 +53,9 @@ class TaskControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     private Task testTask;
     private TaskStatus testStatus;
@@ -187,5 +194,76 @@ class TaskControllerTest {
     void testDeleteUnauthorized() throws Exception {
         mockMvc.perform(delete("/api/tasks/" + testTask.getId()))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCreateWithLabels() throws Exception {
+        var label = new Label();
+        label.setName("test");
+        labelRepository.save(label);
+
+        var data = new HashMap<>();
+        data.put("title", "Task with labels");
+        data.put("status", "draft");
+        data.put("taskLabelIds", Set.of(label.getId()));
+
+        mockMvc.perform(post("/api/tasks")
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.taskLabelIds").isArray());
+    }
+
+    @Test
+    void testCreateWithInvalidStatus() throws Exception {
+        var data = Map.of(
+                "title", "Bad status task",
+                "status", "nonexistent-slug"
+        );
+
+        mockMvc.perform(post("/api/tasks")
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testCreateWithInvalidAssignee() throws Exception {
+        var data = new HashMap<>();
+        data.put("title", "Task bad assignee");
+        data.put("status", "draft");
+        data.put("assignee_id", 999999L);
+
+        mockMvc.perform(post("/api/tasks")
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testUpdateWithNewStatus() throws Exception {
+        var newStatus = new TaskStatus();
+        newStatus.setName("In Progress");
+        newStatus.setSlug("in-progress");
+        taskStatusRepository.save(newStatus);
+
+        var data = Map.of("status", "in-progress");
+
+        mockMvc.perform(put("/api/tasks/" + testTask.getId())
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("in-progress"));
+    }
+
+    @Test
+    void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/tasks/999999")
+                        .with(user(testUser)))
+                .andExpect(status().isNotFound());
     }
 }

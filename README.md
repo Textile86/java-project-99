@@ -9,6 +9,17 @@ https://java-project-99-0dzq.onrender.com
 
 Веб-приложение для управления задачами, построенное на Spring Boot.
 
+## Демо
+
+**Приложение задеплоено на Render:** https://java-project-99-0dzq.onrender.com
+> ⚠️ Бесплатный тариф Render — первый запрос может занять до 60 секунд (cold start).
+Для входа используйте:
+
+| Поле | Значение |
+|------|----------|
+| email | `admin@example.com` |
+| password | `qwerty` |
+
 ## Технологии
 
 - Java 21

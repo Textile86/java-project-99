@@ -1,7 +1,11 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.TaskRepository;
+import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
@@ -46,6 +50,12 @@ class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private TaskStatusRepository taskStatusRepository;
 
     @BeforeEach
     void setUp() {
@@ -158,6 +168,64 @@ class UserControllerTest {
 
         mockMvc.perform(delete("/api/users/" + user.getId())
                         .with(user(anotherUser)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testShowNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/999999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testDestroyForbiddenWhenAssignedToTask() throws Exception {
+        User user = createTestUser();
+
+        TaskStatus status = taskStatusRepository.findAll().get(0);
+
+        Task task = new Task();
+        task.setName("Blocking task");
+        task.setTaskStatus(status);
+        task.setAssignee(user);
+        taskRepository.save(task);
+
+        mockMvc.perform(delete("/api/users/" + user.getId())
+                        .with(user(user)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testUpdate() throws Exception {
+        User user = createTestUser();
+
+        var data = new HashMap<>();
+        data.put("firstName", "Updated");
+        data.put("lastName", "Name");
+        data.put("email", "updated@example.com");
+        data.put("password", "newpassword");
+
+        mockMvc.perform(patch("/api/users/" + user.getId())
+                        .with(user(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isOk());
+
+        User updated = userRepository.findById(user.getId()).get();
+        assertThat(updated.getFirstName()).isEqualTo("Updated");
+    }
+
+    @Test
+    void testUpdateForbidden() throws Exception {
+        User user = createTestUser();
+        User anotherUser = createTestUser();
+
+        var data = new HashMap<>();
+        data.put("firstName", "Hacker");
+
+        mockMvc.perform(patch("/api/users/" + user.getId())
+                        .with(user(anotherUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
                 .andExpect(status().isForbidden());
     }
 
