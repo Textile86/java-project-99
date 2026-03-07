@@ -20,6 +20,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
+
 public abstract class TaskMapper {
 
     @Autowired
@@ -40,6 +42,8 @@ public abstract class TaskMapper {
 
     @Autowired
     private LabelRepository labelRepository;
+
+    private static final String ACTION_NOT_FOUNT = " not found";
 
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "slugToTaskStatus")
     @Mapping(target = "assignee", source = "assigneeId", qualifiedByName = "idToUser")
@@ -62,7 +66,7 @@ public abstract class TaskMapper {
             return null;
         }
         return taskStatusRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + "' not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + ACTION_NOT_FOUNT));
     }
 
     @Named("slugToTaskStatusNullable")
@@ -76,7 +80,7 @@ public abstract class TaskMapper {
             return null;
         }
         return taskStatusRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + "' not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + ACTION_NOT_FOUNT));
     }
 
     @Named("idToUser")
@@ -85,7 +89,7 @@ public abstract class TaskMapper {
             return null;
         }
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + ACTION_NOT_FOUNT));
     }
 
     @Named("idToUserNullable")
@@ -99,7 +103,7 @@ public abstract class TaskMapper {
             return null;
         }
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + ACTION_NOT_FOUNT));
     }
 
     @Named("idsToLabels")
@@ -109,7 +113,7 @@ public abstract class TaskMapper {
         }
         return ids.stream()
                 .map(id -> labelRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Label with id " + id + " not found")))
+                        .orElseThrow(() -> new ResourceNotFoundException("Label with id " + id + ACTION_NOT_FOUNT)))
                 .collect(Collectors.toSet());
     }
 
@@ -125,7 +129,7 @@ public abstract class TaskMapper {
     protected Set<Label> idsToLabelsNullable(
             org.openapitools.jackson.nullable.JsonNullable<Set<Long>> idsNullable) {
         if (idsNullable == null || !idsNullable.isPresent()) {
-            return null;
+            return Collections.emptySet();
         }
         return idsToLabels(idsNullable.get());
     }

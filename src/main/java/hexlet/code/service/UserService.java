@@ -26,6 +26,9 @@ public class UserService {
     private final UserUtils userUtils;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String ACTION_USER = "User with id ";
+    private static final String ACTION_NOT_FOUND = " not found";
+
     public List<UserDTO> index() {
         return userRepository.findAll().stream()
                 .map(userMapper::toDTO)
@@ -34,7 +37,7 @@ public class UserService {
 
     public UserDTO show(Long id) {
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTION_USER + id + ACTION_NOT_FOUND));
         return userMapper.toDTO(user);
     }
 
@@ -51,7 +54,7 @@ public class UserService {
             throw new AccessDeniedException("You can only edit your own profile");
         }
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTION_USER + id + ACTION_NOT_FOUND));
         userMapper.updateEntity(dto, user);
         userRepository.save(user);
         return userMapper.toDTO(user);
@@ -63,7 +66,7 @@ public class UserService {
             throw new AccessDeniedException("You can only edit your own profile");
         }
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTION_USER + id + ACTION_NOT_FOUND));
         userMapper.updateEntityFromPatch(dto, user);
         userRepository.save(user);
         return userMapper.toDTO(user);

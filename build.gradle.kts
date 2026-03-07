@@ -6,6 +6,16 @@ plugins {
 	checkstyle
 }
 
+val springBootVersion = "3.3.5"
+val lombokVersion = "1.18.30"
+val datafakerVersion = "2.0.2"
+val jsonUnitVersion = "3.2.2"
+val instancioVersion = "3.3.0"
+val mapstructVersion = "1.5.5.Final"
+val jacksonNullableVersion = "0.2.6"
+val springdocVersion = "2.6.0"
+val sentryVersion = "7.14.0"
+
 group = "hexlet.code"
 version = "0.0.1-SNAPSHOT"
 
@@ -21,29 +31,29 @@ repositories {
 
 dependencies {
 	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.5"))
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	developmentOnly("org.springframework.boot:spring-boot-devtools:3.3.5")
-	compileOnly("org.projectlombok:lombok:1.18.30")
-	annotationProcessor("org.projectlombok:lombok:1.18.30")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	runtimeOnly("com.h2database:h2")
-	implementation("net.datafaker:datafaker:2.0.2")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
-	testImplementation("org.instancio:instancio-junit:3.3.0")
-	implementation("org.mapstruct:mapstruct:1.5.5.Final")
-	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
-	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+	implementation("net.datafaker:datafaker:$datafakerVersion")
+	implementation("org.mapstruct:mapstruct:$mapstructVersion")
+	implementation("org.openapitools:jackson-databind-nullable:$jacksonNullableVersion")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-	runtimeOnly("org.postgresql:postgresql")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-	implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.14.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+	implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:$jsonUnitVersion")
+	testImplementation("org.instancio:instancio-junit:$instancioVersion")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	developmentOnly("org.springframework.boot:spring-boot-devtools:$springBootVersion")
+	compileOnly("org.projectlombok:lombok:$lombokVersion")
+	annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
+	runtimeOnly("com.h2database:h2")
+	runtimeOnly("org.postgresql:postgresql")
 }
 
 tasks.withType<Test> {

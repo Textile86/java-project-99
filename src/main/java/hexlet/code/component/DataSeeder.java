@@ -7,6 +7,7 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,9 @@ public class DataSeeder implements ApplicationRunner {
     private final PasswordEncoder passwordEncoder;
     private final LabelRepository labelRepository;
 
+    @Value("${app.admin.password:qwerty}")
+    private String adminPassword;
+
     @Override
     public void run(ApplicationArguments args) {
         seedAdmin();
@@ -35,7 +39,7 @@ public class DataSeeder implements ApplicationRunner {
         if (userRepository.findByEmail("admin@example.com").isEmpty()) {
             var user = new User();
             user.setEmail("admin@example.com");
-            user.setPasswordDigest(passwordEncoder.encode("qwerty"));
+            user.setPasswordDigest(passwordEncoder.encode(adminPassword));
             userRepository.save(user);
         }
     }
