@@ -218,15 +218,22 @@ class UserControllerTest {
     void testUpdateForbidden() throws Exception {
         User user = createTestUser();
         User anotherUser = createTestUser();
+        String originalFirstName = user.getFirstName();
 
         var data = new HashMap<>();
         data.put("firstName", "Hacker");
+        data.put("lastName", "Attack");
+        data.put("email", "hacked@example.com");
+        data.put("password", "hackedpass");
 
         mockMvc.perform(patch("/api/users/" + user.getId())
                         .with(user(anotherUser))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(data)))
                 .andExpect(status().isForbidden());
+
+        User notUpdated = userRepository.findById(user.getId()).get();
+        assertThat(notUpdated.getFirstName()).isEqualTo(originalFirstName);
     }
 
     private User createTestUser() {
