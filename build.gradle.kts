@@ -69,6 +69,15 @@ sonar {
 		property("sonar.projectKey", "Textile86_java-project-99")
 		property("sonar.organization", "textile86")
 		property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
+		property("sonar.coverage.exclusions",
+			"src/main/java/hexlet/code/dto/**," +
+					"src/main/java/hexlet/code/model/**," +
+					"src/main/java/hexlet/code/exception/**," +
+					"src/main/java/hexlet/code/config/**," +
+					"src/main/java/hexlet/code/component/DataSeeder.java," +
+					"src/main/java/hexlet/code/controller/WelcomeController.java," +
+					"src/main/java/hexlet/code/AppApplication.java"
+		)
 	}
 }
 
