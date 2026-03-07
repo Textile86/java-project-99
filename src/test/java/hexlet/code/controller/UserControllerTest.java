@@ -53,7 +53,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testIndex() throws Exception {
+    void testIndex() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -63,7 +63,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testShow() throws Exception {
+    void testShow() throws Exception {
         User user = createTestUser();
 
         MvcResult result = mockMvc.perform(get("/api/users/" + user.getId()))
@@ -78,14 +78,14 @@ class UserControllerTest {
     }
 
     @Test
-    public void testProtectedEndpointUnauthorized() throws Exception {
+    void testProtectedEndpointUnauthorized() throws Exception {
         User user = createTestUser();
         mockMvc.perform(delete("/api/users/" + user.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void testCreate() throws Exception {
+    void testCreate() throws Exception {
         var data = new HashMap<>();
         data.put("firstName", "John");
         data.put("lastName", "Smith");
@@ -105,7 +105,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testPatch() throws Exception {
+    void testPatch() throws Exception {
         User user = createTestUser();
         String oldLastName = user.getLastName();
 
@@ -126,7 +126,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testPatchForbidden() throws Exception {
+    void testPatchForbidden() throws Exception {
         User user = createTestUser();
         User anotherUser = createTestUser();
 
@@ -141,7 +141,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testDestroy() throws Exception {
+    void testDestroy() throws Exception {
         User user = createTestUser();
 
         mockMvc.perform(delete("/api/users/" + user.getId())
@@ -152,7 +152,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testDestroyForbidden() throws Exception {
+    void testDestroyForbidden() throws Exception {
         User user = createTestUser();
         User anotherUser = createTestUser();
 

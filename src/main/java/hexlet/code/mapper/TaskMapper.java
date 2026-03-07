@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-
+@SuppressWarnings("java:S6813")
 public abstract class TaskMapper {
 
     @Autowired
