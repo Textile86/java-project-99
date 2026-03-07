@@ -38,4 +38,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-        run: gradle build jacocoTestReport sonar -x test --no-daemon
+        run: gradle test jacocoTestReport sonar --no-daemon
