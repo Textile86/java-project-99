@@ -68,6 +68,7 @@ sonar {
 	properties {
 		property("sonar.projectKey", "Textile86_java-project-99")
 		property("sonar.organization", "textile86")
+		property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
 	}
 }
 

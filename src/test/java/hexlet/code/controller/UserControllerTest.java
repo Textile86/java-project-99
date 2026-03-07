@@ -48,7 +48,7 @@ class UserControllerTest {
     private UserRepository userRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userRepository.deleteAll();
     }
 
