@@ -2,7 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.5"
 	jacoco
-	// id("org.sonarqube") version "7.1.0.6387"
+	id("org.sonarqube") version "4.4.1.3373"
 	checkstyle
 }
 
@@ -54,12 +54,12 @@ checkstyle {
 	toolVersion = "10.12.4"
 }
 
-//sonar {
-//	properties {
-//		property("sonar.projectKey", "Textile86_java-project-99")
-//		property("sonar.organization", "textile86")
-//	}
-//}
+sonar {
+	properties {
+		property("sonar.projectKey", "Textile86_java-project-99")
+		property("sonar.organization", "textile86")
+	}
+}
 
 tasks.jacocoTestReport {
 	reports {
