@@ -165,7 +165,7 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated title"))
                 .andExpect(jsonPath("$.content").value("Updated content"))
-                .andExpect(jsonPath("$.status").value("draft")); // статус не изменился
+                .andExpect(jsonPath("$.status").value("draft"));
 
         var updated = taskRepository.findById(testTask.getId()).orElseThrow();
         assertThat(updated.getName()).isEqualTo("Updated title");
@@ -266,4 +266,35 @@ class TaskControllerTest {
                         .with(user(testUser)))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void testUpdateWithAssignee() throws Exception {
+        var data = new HashMap<>();
+        data.put("assignee_id", testUser.getId());
+
+        mockMvc.perform(put("/api/tasks/" + testTask.getId())
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assignee_id").value(testUser.getId()));
+    }
+
+    @Test
+    void testUpdateWithLabels() throws Exception {
+        var label = new Label();
+        label.setName("feature-label");
+        labelRepository.save(label);
+
+        var data = new HashMap<>();
+        data.put("taskLabelIds", Set.of(label.getId()));
+
+        mockMvc.perform(put("/api/tasks/" + testTask.getId())
+                        .with(user(testUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(data)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.taskLabelIds").isArray());
+    }
+
 }

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -56,6 +58,9 @@ class UserControllerTest {
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
@@ -248,5 +253,47 @@ class UserControllerTest {
 
         user.setPasswordDigest("$2a$10$someHashedPassword");
         return userRepository.save(user);
+    }
+
+    @Test
+    void testUpdateForbiddenPut() throws Exception {
+        User user = createTestUser();
+        User anotherUser = createTestUser();
+        String originalFirstName = user.getFirstName();
+
+        var data = new HashMap<>();
+        data.put("firstName", "Hacker");
+        data.put("lastName", "Attack");
+        data.put("email", "hacked@example.com");
+        data.put("password", "hackedpass");
+
+        mockMvc.perform(put("/api/users/" + user.getId())
+                        .with(user(anotherUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isForbidden());
+
+        User notUpdated = userRepository.findById(user.getId()).get();
+        assertThat(notUpdated.getFirstName()).isEqualTo(originalFirstName);
+    }
+
+    @Test
+    void testUpdateWithPassword() throws Exception {
+        User user = createTestUser();
+        String newPassword = "newpassword123";
+
+        var data = new HashMap<>();
+        data.put("email", user.getEmail());
+        data.put("password", newPassword);
+
+        mockMvc.perform(put("/api/users/" + user.getId())
+                        .with(user(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isOk());
+
+
+        User updated = userRepository.findById(user.getId()).get();
+        assertThat(passwordEncoder.matches(newPassword, updated.getPasswordDigest())).isTrue();
     }
 }
