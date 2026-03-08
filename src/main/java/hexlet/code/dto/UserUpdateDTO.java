@@ -1,23 +1,21 @@
 package hexlet.code.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Setter
 @Getter
 public class UserUpdateDTO {
 
-    private String firstName;
-    private String lastName;
+    private JsonNullable<String> firstName = JsonNullable.undefined();
+    private JsonNullable<String> lastName = JsonNullable.undefined();
 
-    @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Email должен быть валидным")
-    private String email;
+    private JsonNullable<String> email = JsonNullable.undefined();
 
-    @NotBlank(message = "Пароль не может быть пустым")
     @Size(min = 3, message = "Пароль должен быть минимум 3 символа")
-    private String password;
+    private JsonNullable<String> password = JsonNullable.undefined();
 }

@@ -56,6 +56,9 @@ public class UserService {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ACTION_USER + id + ACTION_NOT_FOUND));
         userMapper.updateEntity(dto, user);
+        if (dto.getPassword() != null && dto.getPassword().isPresent()) {
+            user.setPasswordDigest(passwordEncoder.encode(dto.getPassword().get()));
+        }
         userRepository.save(user);
         return userMapper.toDTO(user);
     }
@@ -68,6 +71,9 @@ public class UserService {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ACTION_USER + id + ACTION_NOT_FOUND));
         userMapper.updateEntityFromPatch(dto, user);
+        if (dto.getPassword() != null && dto.getPassword().isPresent()) {
+            user.setPasswordDigest(passwordEncoder.encode(dto.getPassword().get()));
+        }
         userRepository.save(user);
         return userMapper.toDTO(user);
     }
