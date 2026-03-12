@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.TaskDTO;
+import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
@@ -12,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,16 +58,29 @@ class TaskStatusControllerTest {
 
     @Test
     void testIndex() throws Exception {
-        mockMvc.perform(get("/api/task_statuses"))
+        var response = mockMvc.perform(get("/api/tasks")
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].slug").value("draft"));
+                .andReturn()
+                .getResponse();
+
+        List<TaskDTO> actual = objectMapper.readValue(
+                response.getContentAsString(), new TypeReference<>() { });
+
+        var expected = taskRepository.findAll();
+
+        assertThat(actual).hasSize(expected.size());
+        assertThat(actual.stream().map(TaskDTO::getName).toList())
+                .containsExactlyInAnyOrderElementsOf(
+                        expected.stream().map(Task::getName).toList()
+                );
     }
 
     @Test
     void testShow() throws Exception {
-        mockMvc.perform(get("/api/task_statuses/" + testStatus.getId()))
+        mockMvc.perform(get("/api/task_statuses/" + testStatus.getId())
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Draft"))
                 .andExpect(jsonPath("$.slug").value("draft"));
@@ -71,7 +88,8 @@ class TaskStatusControllerTest {
 
     @Test
     void testShowNotFound() throws Exception {
-        mockMvc.perform(get("/api/task_statuses/99999"))
+        mockMvc.perform(get("/api/task_statuses/99999")
+                        .with(user("admin@example.com")))
                 .andExpect(status().isNotFound());
     }
 

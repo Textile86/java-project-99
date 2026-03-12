@@ -18,10 +18,12 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,21 +68,19 @@ public abstract class TaskMapper {
             return null;
         }
         return taskStatusRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + ACTION_NOT_FOUNT));
+                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug " + slug + ACTION_NOT_FOUNT));
     }
 
     @Named("slugToTaskStatusNullable")
     protected TaskStatus slugToTaskStatusNullable(
             org.openapitools.jackson.nullable.JsonNullable<String> slugNullable) {
-        if (slugNullable == null || !slugNullable.isPresent()) {
-            return null;
-        }
-        String slug = slugNullable.get();
-        if (slug == null) {
-            return null;
-        }
-        return taskStatusRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug '" + slug + ACTION_NOT_FOUNT));
+        return Optional.ofNullable(slugNullable)
+                .filter(JsonNullable::isPresent)
+                .map(JsonNullable::get)
+                .map(slug -> taskStatusRepository.findBySlug(slug)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("TaskStatus with slug '" + slug + ACTION_NOT_FOUNT)))
+                .orElse(null);
     }
 
     @Named("idToUser")
@@ -95,15 +95,12 @@ public abstract class TaskMapper {
     @Named("idToUserNullable")
     protected User idToUserNullable(
             org.openapitools.jackson.nullable.JsonNullable<Long> idNullable) {
-        if (idNullable == null || !idNullable.isPresent()) {
-            return null;
-        }
-        Long id = idNullable.get();
-        if (id == null) {
-            return null;
-        }
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + ACTION_NOT_FOUNT));
+        return Optional.ofNullable(idNullable)
+                .filter(JsonNullable::isPresent)
+                .map(JsonNullable::get)
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + ACTION_NOT_FOUNT)))
+                .orElse(null);
     }
 
     @Named("idsToLabels")
@@ -111,10 +108,7 @@ public abstract class TaskMapper {
         if (ids == null) {
             return new HashSet<>();
         }
-        return ids.stream()
-                .map(id -> labelRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Label with id " + id + ACTION_NOT_FOUNT)))
-                .collect(Collectors.toSet());
+        return new HashSet<>(labelRepository.findAllById(ids));
     }
 
     @Named("labelsToIds")
@@ -128,9 +122,10 @@ public abstract class TaskMapper {
     @Named("idsToLabelsNullable")
     protected Set<Label> idsToLabelsNullable(
             org.openapitools.jackson.nullable.JsonNullable<Set<Long>> idsNullable) {
-        if (idsNullable == null || !idsNullable.isPresent()) {
-            return Collections.emptySet();
-        }
-        return idsToLabels(idsNullable.get());
+        return Optional.ofNullable(idsNullable)
+                .filter(JsonNullable::isPresent)
+                .map(JsonNullable::get)
+                .map(this::idsToLabels)
+                .orElse(Collections.emptySet());
     }
 }

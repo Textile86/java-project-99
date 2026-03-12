@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,6 +29,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private static final String ONLY_OWNER_BY_ID =
+            "@userUtils.getCurrentUser().getId() == #id";
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> index() {
@@ -49,16 +52,19 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
         return userService.update(id, dto);
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public UserDTO patch(@PathVariable Long id, @Valid @RequestBody UserPatchDTO dto) {
         return userService.patch(id, dto);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable Long id) {
         userService.destroy(id);

@@ -4,7 +4,7 @@ import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.dto.TaskDTO;
 import hexlet.code.dto.TaskFilter;
 import hexlet.code.dto.TaskUpdateDTO;
-import hexlet.code.service.TaskService;
+import hexlet.code.service.TaskServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final TaskService taskService;
+    private final TaskServiceImpl taskService;
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> index(TaskFilter filter) {

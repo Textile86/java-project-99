@@ -20,7 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
 class UserControllerTest {
 
     @Autowired
@@ -64,12 +62,15 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
+        taskRepository.deleteAll();
+        taskStatusRepository.deleteAll();
         userRepository.deleteAll();
     }
 
     @Test
     void testIndex() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/users"))
+        MvcResult result = mockMvc.perform(get("/api/users")
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -81,7 +82,8 @@ class UserControllerTest {
     void testShow() throws Exception {
         User user = createTestUser();
 
-        MvcResult result = mockMvc.perform(get("/api/users/" + user.getId()))
+        MvcResult result = mockMvc.perform(get("/api/users/" + user.getId())
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -178,7 +180,8 @@ class UserControllerTest {
 
     @Test
     void testShowNotFound() throws Exception {
-        mockMvc.perform(get("/api/users/999999"))
+        mockMvc.perform(get("/api/users/999999")
+                        .with(user("admin@example.com")))
                 .andExpect(status().isNotFound());
     }
 
@@ -186,7 +189,11 @@ class UserControllerTest {
     void testDestroyForbiddenWhenAssignedToTask() throws Exception {
         User user = createTestUser();
 
-        TaskStatus status = taskStatusRepository.findAll().get(0);
+        long timestamp = System.currentTimeMillis();
+        TaskStatus status = new TaskStatus();
+        status.setName("UniqueName");
+        status.setSlug("UniqueName");
+        taskStatusRepository.save(status);
 
         Task task = new Task();
         task.setName("Blocking task");
@@ -194,9 +201,14 @@ class UserControllerTest {
         task.setAssignee(user);
         taskRepository.save(task);
 
-        mockMvc.perform(delete("/api/users/" + user.getId())
+        var result = mockMvc.perform(delete("/api/users/" + user.getId())
                         .with(user(user)))
-                .andExpect(status().isConflict());
+                .andReturn();
+
+        System.out.println("STATUS: " + result.getResponse().getStatus());
+        System.out.println("BODY: " + result.getResponse().getContentAsString());
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(409);
     }
 
     @Test

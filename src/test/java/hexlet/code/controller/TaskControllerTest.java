@@ -1,6 +1,8 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.TaskDTO;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,13 +89,23 @@ class TaskControllerTest {
 
     @Test
     void testIndex() throws Exception {
-        mockMvc.perform(get("/api/tasks")
+        var response = mockMvc.perform(get("/api/tasks")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].title").value("Test task"))
-                .andExpect(jsonPath("$[0].status").value("draft"));
+                .andReturn()
+                .getResponse();
+
+        List<TaskDTO> actual = objectMapper.readValue(
+                response.getContentAsString(), new TypeReference<>() { });
+
+        var expected = taskRepository.findAll();
+
+        assertThat(actual).hasSize(expected.size());
+        assertThat(actual.stream().map(TaskDTO::getName).toList())
+                .containsExactlyInAnyOrderElementsOf(
+                        expected.stream().map(Task::getName).toList()
+                );
     }
 
     @Test

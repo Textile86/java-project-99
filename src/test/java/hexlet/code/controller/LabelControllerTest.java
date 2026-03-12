@@ -1,6 +1,8 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.LabelDTO;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
@@ -15,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,14 +65,29 @@ class LabelControllerTest {
 
     @Test
     void testIndex() throws Exception {
-        mockMvc.perform(get("/api/labels"))
+        var response = mockMvc.perform(get("/api/labels")
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("bug"));
+                .andReturn()
+                .getResponse();
+
+        var body = response.getContentAsString();
+
+        List<LabelDTO> actual = objectMapper.readValue(body, new TypeReference<>() { });
+
+        var expected = labelRepository.findAll();
+
+        assertThat(actual).hasSize(expected.size());
+        assertThat(actual.stream().map(LabelDTO::getName).toList())
+                .containsExactlyInAnyOrderElementsOf(
+                        expected.stream().map(Label::getName).toList()
+                );
     }
 
     @Test
     void testShow() throws Exception {
-        mockMvc.perform(get("/api/labels/" + testLabel.getId()))
+        mockMvc.perform(get("/api/labels/" + testLabel.getId())
+                        .with(user("admin@example.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("bug"));
     }
