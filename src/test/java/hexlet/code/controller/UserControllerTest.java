@@ -189,7 +189,6 @@ class UserControllerTest {
     void testDestroyForbiddenWhenAssignedToTask() throws Exception {
         User user = createTestUser();
 
-        long timestamp = System.currentTimeMillis();
         TaskStatus status = new TaskStatus();
         status.setName("UniqueName");
         status.setSlug("UniqueName");
