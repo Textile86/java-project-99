@@ -1,6 +1,0 @@
-#FileLock
-#Thu Mar 12 15:19:46 MSK 2026
-hostName=Textile.localdomain
-id=19ce1fd0ff912ef35ede54340e81b7ee4a8ff9263a1
-method=file
-server=127.0.1.1\:35379

@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.UserDTO;
+import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
@@ -8,6 +11,7 @@ import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import net.datafaker.Faker;
+import org.assertj.core.api.Assertions;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +27,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +65,9 @@ class UserControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @BeforeEach
     void setUp() {
         taskRepository.deleteAll();
@@ -76,6 +84,13 @@ class UserControllerTest {
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
+
+        List<UserDTO> userDTOS = om.readValue(body, new TypeReference<>() {
+        });
+
+        var actual = userDTOS.stream().map(userMapper::toEntity).toList();
+        var expected = userRepository.findAll();
+        Assertions.assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
